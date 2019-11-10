@@ -1,0 +1,20 @@
+global:
+  window size = (1000, 600)
+  map size = (600, 600)
+
+
+Map:
+  self.size: list of two int, e.g. (5, 5)
+  self.ch_position: list of two int, e.g. [3, 2]
+  self.ch_direction: string of 1 char, l -> left, r -> right, u -> up, d -> down
+  self.env: 2d-list of int, int representation:
+    0 -> None
+    1 -> animal
+    2 -> walls
+    3 -> wolves
+    4 -> rivers
+  self.command_list: list of string, values:
+    "forward", "turn left", "turn right"
+
+MapSection:
+  self.move: @param move_list = ["f3", "l", "r"]
