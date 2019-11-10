@@ -81,7 +81,7 @@ class Map:
 """
 class MapSection:
     WINDOW_SIZE = (600, 600)
-    SPEED = 5
+    SPEED = 8
     WAIT_TIME = 300
     CELL_SIZE = 75
 
@@ -353,7 +353,7 @@ class MapSection:
         # lose situation, collide on walls
         if (x >= self.size[0] or x < 0 or 
             y >= self.size[1] or y < 0 or
-            self.env[x][y] != 0):
+            (self.env[x][y] != 0 and self.env[x][y] != 1)):
             self.loss_bool = True
             self.move_sequence = ["lose"]
             self.collide()

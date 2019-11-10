@@ -136,20 +136,24 @@ if __name__ == '__main__':
             if game.stage1_clicked:
                 menupage = False
                 stage1_run = True
+                game.stage1_clicked = False
             elif game.stage2_clicked:
                 menupage = False
                 stage2_run = True
+                game.stage2_clicked = False
             
         if stage1_run:
             stage = stageRight(window.screen, 1)
             stage.motion()
             menupage = True
             stage1_run = False
+            game.click = False
         elif stage2_run:
             stage = stageRight(window.screen, 2)
             stage.motion()
             menupage = True
             stage2_run = False
+            game.click = False
             
 
 
