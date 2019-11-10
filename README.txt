@@ -1,3 +1,3 @@
 ******************* HackED 2019 ********************
 
-Collaborator: Dulong Sang, Yuxin Liu, Zhining He, Grace Fu
+Collaborator: Dulong Sang, Yuxin Liu, Zhining(Andi) He, Grace Fu
