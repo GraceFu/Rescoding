@@ -1,5 +1,6 @@
 global:
   window size = (1000, 600)
+  map size = (600, 600)
 
 
 Map:
