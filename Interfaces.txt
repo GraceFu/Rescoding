@@ -15,3 +15,6 @@ Map:
     4 -> rivers
   self.command_list: list of string, values:
     "forward", "turn left", "turn right"
+
+MapSection:
+  self.move: @param move_list = ["f3", "l", "r"]
