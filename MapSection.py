@@ -2,8 +2,16 @@ import pygame
 import json
 
 """
+INTERFACES:
+
 To import this file
 use: from MapSection import MapSection
+
+@ methods (of MapSection):
+    self.move(move_sequence): (list) arbitrary length with, value = "f", "l", "r"
+    self.display_update(): single loop function
+    self.isWin(): return True if usr wins, False otherwise
+    self.isLose(): return True only if usr loses
 """
 
 
@@ -77,7 +85,7 @@ class MapSection:
     WAIT_TIME = 300
     CELL_SIZE = 75
 
-    IMAGE_FOLDER = "image"
+    FOLDER_NAME = "image"
 
     """
     display: (pygame.Surface) where to draw
@@ -88,10 +96,12 @@ class MapSection:
         self.load_imgs()
         self.size = self.map.getSize()
         self.env = self.map.getEnv()
-        self.ch_pos = self.map.ch_position
+        self.ch_pos = self.map.ch_position[:]
         self.ch_direction = self.map.ch_direction
         self.draw_prog = 0
         self.move_sequence = []
+        self.win_bool = False
+        self.loss_bool = False
 
         height = self.size[0]
         width = self.size[1]
@@ -104,29 +114,31 @@ class MapSection:
 
     def load_imgs(self):
         self.stone_img = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/stone.png"), (75,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/stone.png"), (75,75))
         self.grace_img = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/grace.png"), (75,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/grace.png"), (75,75))
         self.animal_img = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/egg.png"), (75,75))
-        self.bg_img = pygame.image.load(MapSection.IMAGE_FOLDER+"/grid_bg.png")
+                            pygame.image.load(MapSection.FOLDER_NAME+"/egg.png"), (75,75))
+        self.bg_img = pygame.image.load(MapSection.FOLDER_NAME+"/grid_bg.png")
         self.arrow_u = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/arrow_u.png"), (75,25))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/arrow_u.png"), (75,25))
         self.arrow_d = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/arrow_d.png"), (75,25))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/arrow_d.png"), (75,25))
         self.arrow_l = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/arrow_l.png"), (25,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/arrow_l.png"), (25,75))
         self.arrow_r = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/arrow_r.png"), (25,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/arrow_r.png"), (25,75))
         self.sad_face_tl = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/sad_face_tl.png"), (75,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/sad_face_tl.png"), (75,75))
         self.sad_face_tr = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/sad_face_tr.png"), (75,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/sad_face_tr.png"), (75,75))
         self.sad_face_bl = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/sad_face_bl.png"), (75,75))
+                            pygame.image.load(MapSection.FOLDER_NAME+"/sad_face_bl.png"), (75,75))
         self.sad_face_br = pygame.transform.scale(
-                            pygame.image.load(MapSection.IMAGE_FOLDER+"/sad_face_br.png"), (75,75))
-
+                            pygame.image.load(MapSection.FOLDER_NAME+"/sad_face_br.png"), (75,75))
+        self.win_msg_box = pygame.image.load(MapSection.FOLDER_NAME+"/win_msg.png")
+        self.win_cont_hover = pygame.image.load(MapSection.FOLDER_NAME+"/win_msg_cont_hover.png")
+        self.huge_egg_img = pygame.transform.scale(self.animal_img, (150, 150))
 
 
     def draw_map(self):
@@ -141,7 +153,7 @@ class MapSection:
                     self.display.blit(self.stone_img, pos)
 
 
-    def init(self):
+    def basic_update(self):
         self.draw_map()
 
         # draw Grace
@@ -150,14 +162,48 @@ class MapSection:
         self.draw_on_master()
 
 
+    def init(self):
+        self.ch_direction = self.map.ch_direction
+        self.ch_pos = self.map.ch_position[:]
+        self.loss_bool = False
+        self.draw()
+
+
+    def isWin(self):
+        return self.win_bool
+
+
+    def isLose(self):
+        return self.loss_bool
+
+
     def reach_egg(self):
-        pass
+        self.display.blit(self.win_msg_box, (100, 150))
+        self.display.blit(self.huge_egg_img, (227, 240))
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_click = pygame.mouse.get_pressed()[0]
+        mouse_hb = pygame.Rect(mouse_pos[0], mouse_pos[1], 5, 5)
+        button_hb = pygame.Rect(220, 402, 192, 46)
+
+        if (self.win_bool):
+            self.draw_prog = 0
+            self.move_sequence.pop()
+            return
+        
+        if mouse_hb.colliderect(button_hb):   # check if mouseover
+            self.display.blit(self.win_cont_hover, (220, 402)) 
+            if mouse_click == 1:   # if user clicks on button, go to menu
+                self.win_bool = True
+
+        self.draw_on_master()
 
 
     def collide(self):
         if (self.draw_prog > 600):
             self.draw_prog = 0
             self.move_sequence.pop()
+            self.init()
             return
 
         self.draw_map()
@@ -188,6 +234,7 @@ class MapSection:
 
     def display_update(self):
         if (len(self.move_sequence) == 0):
+            self.draw()
             return
         
         if (self.move_sequence[0] == "win"):
@@ -219,16 +266,17 @@ class MapSection:
         csize = MapSection.CELL_SIZE
         pos = [self.ch_pos[0]*csize, self.ch_pos[1]*csize]
 
-        if (self.move_sequence[0] == "f"):
-            fwd = self.draw_prog * 0.01 * MapSection.CELL_SIZE
-            if (self.ch_direction == "l"):
-                pos[0] -= fwd
-            elif (self.ch_direction == "r"):
-                pos[0] += fwd
-            elif (self.ch_direction == "u"):
-                pos[1] -= fwd
-            else: # self.ch_direction == "d"
-                pos[1] += fwd
+        if (len(self.move_sequence) != 0):
+            if (self.move_sequence[0] == "f"):
+                fwd = self.draw_prog * 0.01 * MapSection.CELL_SIZE
+                if (self.ch_direction == "l"):
+                    pos[0] -= fwd
+                elif (self.ch_direction == "r"):
+                    pos[0] += fwd
+                elif (self.ch_direction == "u"):
+                    pos[1] -= fwd
+                else: # self.ch_direction == "d"
+                    pos[1] += fwd
 
         if (self.ch_direction == "l"):
             self.display.blit(self.arrow_l, (pos[0]-25, pos[1]))
@@ -258,33 +306,6 @@ class MapSection:
                 self.ch_pos[1] -= 1
             else: # self.ch_direction == "d"
                 self.ch_pos[1] += 1
-            
-            # win/loss detection
-            x = self.ch_pos[0]  # x coord
-            y = self.ch_pos[1]  # y coord
-
-            if (self.ch_direction == "l"):
-                x -= 1
-            elif (self.ch_direction == "r"):
-                x += 1
-            elif (self.ch_direction == "u"):
-                y -= 1
-            else: # self.ch_direction == "d"
-                y += 1
-
-            # win situation
-            if (self.env[x][y] == 1):
-                self.move_sequence = ["win"]
-                self.reach_egg()
-                return
-
-            # lose situation, collide on walls
-            if (x >= self.size[0] or x < 0 or 
-                y >= self.size[1] or y < 0 or
-                self.env[x][y] != 0):
-                self.move_sequence = ["lose"]
-                self.collide()
-                return
         
         elif (op == "l"):
             if (self.ch_direction == "l"):
@@ -305,3 +326,41 @@ class MapSection:
                 self.ch_direction = "r"
             else: # self.ch_direction == "d"
                 self.ch_direction = "l"
+        
+        # win/loss detection
+        x = self.ch_pos[0]  # x coord
+        y = self.ch_pos[1]  # y coord
+
+        if (self.ch_direction == "l"):
+            x -= 1
+        elif (self.ch_direction == "r"):
+            x += 1
+        elif (self.ch_direction == "u"):
+            y -= 1
+        else: # self.ch_direction == "d"
+            y += 1
+
+        # lose situation no.1
+        if (len(self.move_sequence) == 0) :
+            self.loss_bool = True
+            self.move_sequence = ["lose"]
+            self.collide()
+            return 
+            
+        if (self.move_sequence[0] != "f"):
+            return
+
+        # winning situation
+        if (self.env[x][y] == 1):
+            self.move_sequence = ["win"]
+            self.reach_egg()
+            return
+
+        # lose situation, collide on walls
+        if (x >= self.size[0] or x < 0 or 
+            y >= self.size[1] or y < 0 or
+            self.env[x][y] != 0):
+            self.loss_bool = True
+            self.move_sequence = ["lose"]
+            self.collide()
+            return
