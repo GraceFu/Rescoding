@@ -81,7 +81,7 @@ class Map:
 """
 class MapSection:
     WINDOW_SIZE = (600, 600)
-    SPEED = 2
+    SPEED = 5
     WAIT_TIME = 300
     CELL_SIZE = 75
 
@@ -107,7 +107,6 @@ class MapSection:
         width = self.size[1]
         self.display = pygame.Surface((height*75, width*75))
 
-        
         self.master = display
         self.init()
         
@@ -138,7 +137,8 @@ class MapSection:
                             pygame.image.load(MapSection.FOLDER_NAME+"/sad_face_br.png"), (75,75))
         self.win_msg_box = pygame.image.load(MapSection.FOLDER_NAME+"/win_msg.png")
         self.win_cont_hover = pygame.image.load(MapSection.FOLDER_NAME+"/win_msg_cont_hover.png")
-        self.huge_egg_img = pygame.transform.scale(self.animal_img, (150, 150))
+        self.huge_egg_img = pygame.transform.scale(
+                            pygame.image.load(MapSection.FOLDER_NAME+"/animal.png"), (150,150))
 
 
     def draw_map(self):
@@ -179,7 +179,7 @@ class MapSection:
 
     def reach_egg(self):
         self.display.blit(self.win_msg_box, (100, 150))
-        self.display.blit(self.huge_egg_img, (227, 240))
+        self.display.blit(self.huge_egg_img, (227, 245))
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_click = pygame.mouse.get_pressed()[0]
@@ -220,11 +220,11 @@ class MapSection:
             self.display.blit(self.grace_img, pos)
             if (self.ch_pos[0] == self.size[0]-1):
                 if (self.ch_pos[1] == 0): # top right corner
-                    self.display.blit(self.sad_face_tl, (pos[0]-60, pos[1]+60))
+                    self.display.blit(self.sad_face_tr, (pos[0]-60, pos[1]+60))
                 else: # right side
                     self.display.blit(self.sad_face_br, (pos[0]-60, pos[1]+60))
             elif (self.ch_pos[1] == 0): # top side, without top right corner
-                self.display.blit(self.sad_face_tr, (pos[0]+60, pos[1]+60))
+                self.display.blit(self.sad_face_tl, (pos[0]+60, pos[1]+60))
             else:
                 self.display.blit(self.sad_face_bl, (pos[0]+60, pos[1]-60))
         
@@ -350,12 +350,6 @@ class MapSection:
         if (self.move_sequence[0] != "f"):
             return
 
-        # winning situation
-        if (self.env[x][y] == 1):
-            self.move_sequence = ["win"]
-            self.reach_egg()
-            return
-
         # lose situation, collide on walls
         if (x >= self.size[0] or x < 0 or 
             y >= self.size[1] or y < 0 or
@@ -363,4 +357,10 @@ class MapSection:
             self.loss_bool = True
             self.move_sequence = ["lose"]
             self.collide()
+            return
+
+        # winning situation
+        if (self.env[x][y] == 1):
+            self.move_sequence = ["win"]
+            self.reach_egg()
             return
