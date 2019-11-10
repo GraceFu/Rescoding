@@ -81,7 +81,7 @@ class Map:
 """
 class MapSection:
     WINDOW_SIZE = (600, 600)
-    SPEED = 8
+    SPEED = 5
     WAIT_TIME = 300
     CELL_SIZE = 75
 
