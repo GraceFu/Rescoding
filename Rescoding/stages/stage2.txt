@@ -1,0 +1,10 @@
+{
+    "size": [8,8],
+    "grace_position": [2,6],
+    "grace_direction": "u",
+    "animal": [5,3],
+    "walls": [[4,5],[3,4],[4,4]],
+    "rivers": [],
+    "wolves": [],
+    "command_list": ["forward", "turn left", "turn right"]
+}
