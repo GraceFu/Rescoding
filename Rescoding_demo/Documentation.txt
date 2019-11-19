@@ -1,0 +1,4 @@
+Interface:
+1. Game window size: 1000x600.
+2. Indentation: 4 Spaces
+3. Each page should have a class, with template of /templates/PageTemp.py

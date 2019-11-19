@@ -1,0 +1,6 @@
+Version 0.1.1
+    overall: cleaned up messy code.
+    
+    update: "main menu" and "choose level" pages are completed
+    
+    bug fixed: None
